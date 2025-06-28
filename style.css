@@ -4,6 +4,19 @@
     box-sizing: border-box;
 }
 
+:root {
+    --physics-color: #ff7b00;
+    --math-color: #fff200;
+    --informatics-color: #7fff00;
+    --euricum-gradient: linear-gradient(45deg, 
+        #7fff00 0%, 
+        #7fff00 50%, 
+        #fff200 75%, 
+        #ff7b00 100%
+    );
+    --current-color: var(--physics-color);
+}
+
 body {
     font-family: 'Orbitron', sans-serif;
     background: #1a1a1a;
@@ -15,45 +28,82 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
+    padding: 0 15px;
 }
 
 h1 {
     text-align: center;
     margin-bottom: 20px;
-    color: #00fff2;
+    color: var(--current-color);
+    font-size: clamp(24px, 5vw, 36px);
 }
 
 .subjects {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 20px;
 }
 
 .subject-btn {
     padding: 10px 20px;
-    border: 2px solid #00fff2;
+    border: 2px solid var(--current-color);
     background: transparent;
     color: white;
     cursor: pointer;
     border-radius: 5px;
+    min-width: 140px;
+    text-align: center;
+    font-size: clamp(14px, 2vw, 16px);
 }
 
 .subject-btn.active {
-    background: #00fff2;
+    background: var(--current-color);
     color: black;
+}
+
+/* Специальные стили для кнопки Эврикум */
+.euricum-btn {
+    font-family: 'Pacifico', cursive;
+    font-size: clamp(18px, 2.5vw, 22px);
+    padding: 8px 25px;
+    border: 3px solid transparent;
+    border-image: var(--euricum-gradient) 1;
+    background: rgba(127, 255, 0, 0.1);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+.euricum-btn:hover {
+    transform: scale(1.05);
+    background: rgba(127, 255, 0, 0.2);
+}
+
+.euricum-btn.active {
+    background: var(--euricum-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none;
+    border: 3px solid;
+    border-image: var(--euricum-gradient) 1;
 }
 
 .stats {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 30px;
     margin-bottom: 20px;
+    font-size: clamp(14px, 2vw, 16px);
 }
 
 .controls {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 20px;
 }
@@ -61,11 +111,13 @@ h1 {
 button {
     padding: 10px 20px;
     border: none;
-    background: #00fff2;
+    background: var(--current-color);
     color: black;
     cursor: pointer;
     border-radius: 5px;
     font-family: inherit;
+    font-size: clamp(14px, 2vw, 16px);
+    min-width: 120px;
 }
 
 #gameBoard {
@@ -82,6 +134,7 @@ button {
     cursor: pointer;
     transform-style: preserve-3d;
     transition: transform 0.5s;
+    perspective: 1000px;
 }
 
 .card.flipped {
@@ -91,19 +144,22 @@ button {
 .card-front,
 .card-back {
     position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
     text-align: center;
 }
 
 .card-front {
-    background: #00fff2;
+    background: var(--current-color);
+    padding: 10px;
+    transform: rotateY(0deg);
 }
 
 .card-back {
@@ -113,10 +169,17 @@ button {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    padding: 10px;
 }
 
+/* Стили для изображений в карточках Эврикум */
 .formula {
     font-weight: bold;
+    font-size: clamp(12px, 2vw, 16px);
+}
+
+.description {
+    font-size: clamp(10px, 1.5vw, 12px);
 }
 
 .modal {
@@ -129,6 +192,7 @@ button {
     background: rgba(0, 0, 0, 0.8);
     align-items: center;
     justify-content: center;
+    padding: 20px;
 }
 
 .modal-content {
@@ -136,23 +200,109 @@ button {
     padding: 20px;
     border-radius: 5px;
     text-align: center;
-    border: 2px solid #00fff2;
+    border: 2px solid var(--current-color);
+    width: 100%;
+    max-width: 400px;
 }
 
-@media (max-width: 600px) {
+/* Специальные стили для модального окна в режиме Эврикум */
+[data-subject="euricum"] .modal-content {
+    border-image: var(--euricum-gradient) 1;
+}
+
+/* Медиа-запросы для адаптивности */
+@media (max-width: 768px) {
     .subjects {
         flex-direction: column;
         align-items: center;
     }
 
-    .subject-btn {
+    .subject-btn, .euricum-btn {
         width: 100%;
-        max-width: 200px;
+        max-width: 300px;
     }
 
     .stats {
         flex-direction: column;
         align-items: center;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 515px) {
+    .container {
+        padding: 0 10px;
+    }
+
+    #gameBoard {
+        gap: 6px;
+    }
+
+    .card-front,
+    .card-back {
+        padding: 6px;
+    }
+
+    .formula {
+        font-size: clamp(11px, 2vw, 13px);
+    }
+
+    .description {
+        font-size: clamp(9px, 1.5vw, 10px);
+    }
+}
+
+@media (max-width: 400px) {
+    .subjects {
+        gap: 8px;
+    }
+
+    .stats {
         gap: 10px;
     }
+
+    .controls {
+        gap: 15px;
+    }
+
+    #gameBoard {
+        gap: 4px;
+    }
+}
+
+/* Специальные стили для карточек Эврикум */
+[data-subject="euricum"] .card-front {
+    background: black url('images/logo-evr.jpg') center/contain no-repeat;
+}
+
+[data-subject="euricum"] .card-back {
+    padding: 0;
+    background: none;
+    position: relative;
+}
+
+
+
+.card-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: block;
+    z-index: 0;
 } 

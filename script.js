@@ -29,7 +29,25 @@ const cardData = {
         { formula: "H = -Σpᵢlog₂pᵢ", description: "Энтропия" },
         { formula: "Q = 2^n", description: "Количество информации" },
         { formula: "D = V/t", description: "Скорость передачи данных" }
+    ],
+    euricum: [
+        { image: 'images/evr-imges/IMG_0440.JPG' },
+        { image: 'images/evr-imges/IMG_0399.JPG' },
+        { image: 'images/evr-imges/IMG_0314.JPG' },
+        { image: 'images/evr-imges/IMG_0282.JPG' },
+        { image: 'images/evr-imges/IMG_0262.JPG' },
+        { image: 'images/evr-imges/IMG_8775.JPG' },
+        { image: 'images/evr-imges/IMG_8773.JPG' },
+        { image: 'images/evr-imges/photo_5404332442497705939_y.jpg' }
     ]
+};
+
+// Цвета для предметов
+const subjectColors = {
+    physics: '#ff7b00',
+    math: '#fff200',
+    informatics: '#7fff00',
+    euricum: 'var(--euricum-gradient)'
 };
 
 // Состояние игры
@@ -46,6 +64,7 @@ let isGameActive = false;
 function createCards() {
     const gameBoard = document.getElementById('gameBoard');
     gameBoard.innerHTML = '';
+    gameBoard.dataset.subject = currentSubject;
     
     const cards = [...cardData[currentSubject], ...cardData[currentSubject]]
         .sort(() => Math.random() - 0.5);
@@ -53,13 +72,25 @@ function createCards() {
     cards.forEach((card, index) => {
         const cardElement = document.createElement('div');
         cardElement.className = 'card';
-        cardElement.innerHTML = `
-            <div class="card-front"></div>
-            <div class="card-back">
-                <div class="formula">${card.formula}</div>
-                <div class="description">${card.description}</div>
-            </div>
-        `;
+        
+        if (currentSubject === 'euricum' && card.image) {
+            // Для Эврикум используем изображения
+            cardElement.innerHTML = `
+                <div class="card-front"></div>
+                <div class="card-back">
+                    <img src="${card.image}" class="card-image">
+                </div>
+            `;
+        } else {
+            // Для остальных предметов используем формулы
+            cardElement.innerHTML = `
+                <div class="card-front"></div>
+                <div class="card-back">
+                    <div class="formula">${card.formula}</div>
+                    <div class="description">${card.description}</div>
+                </div>
+            `;
+        }
         
         cardElement.addEventListener('click', () => handleCardClick(cardElement, index));
         gameBoard.appendChild(cardElement);
@@ -79,7 +110,7 @@ function handleCardClick(card, index) {
     
     card.classList.add('flipped');
     flippedCards.push({ element: card, index: index });
-    
+
     if (flippedCards.length === 2) {
         moves++;
         document.getElementById('moves').textContent = moves;
@@ -90,14 +121,25 @@ function handleCardClick(card, index) {
 // Проверка совпадения
 function checkMatch() {
     const [first, second] = flippedCards;
-    const firstFormula = first.element.querySelector('.formula').textContent;
-    const secondFormula = second.element.querySelector('.formula').textContent;
+    let isMatch = false;
+
+    if (currentSubject === 'euricum') {
+        // Для Эврикум сравниваем src изображений
+        const firstImage = first.element.querySelector('img').src;
+        const secondImage = second.element.querySelector('img').src;
+        isMatch = firstImage === secondImage;
+    } else {
+        // Для остальных предметов сравниваем формулы
+        const firstFormula = first.element.querySelector('.formula').textContent;
+        const secondFormula = second.element.querySelector('.formula').textContent;
+        isMatch = firstFormula === secondFormula;
+    }
     
-    if (firstFormula === secondFormula) {
+    if (isMatch) {
         first.element.classList.add('matched');
         second.element.classList.add('matched');
         matchedPairs++;
-        
+
         if (matchedPairs === cardData[currentSubject].length) {
             endGame();
         }
@@ -159,29 +201,59 @@ function resetGame() {
 
 // Подсказка
 function showHint() {
-    if (hintsLeft <= 0 || !isGameActive) return;
+    if (hintsLeft <= 0) {
+        alert('У вас закончились подсказки!');
+        return;
+    }
     
-    const unmatchedCards = Array.from(document.querySelectorAll('.card:not(.matched):not(.flipped)'));
-    if (unmatchedCards.length < 2) return;
-    
-    const firstCard = unmatchedCards[0];
-    const firstFormula = firstCard.querySelector('.formula').textContent;
-    const matchingCard = unmatchedCards.find(card => 
-        card !== firstCard && 
-        card.querySelector('.formula').textContent === firstFormula
+    // Находим все неоткрытые карточки
+    const cards = document.querySelectorAll('.card');
+    const unmatchedCards = Array.from(cards).filter(card => 
+        !card.classList.contains('matched') && 
+        !card.classList.contains('flipped')
     );
-    
-    if (matchingCard) {
-        firstCard.classList.add('flipped');
-        matchingCard.classList.add('flipped');
+
+    if (unmatchedCards.length < 2) return;
+
+    // Находим пару одинаковых карточек
+    let foundPair = false;
+    for (let i = 0; i < unmatchedCards.length - 1; i++) {
+        const card1 = unmatchedCards[i];
+        let value1;
         
-        setTimeout(() => {
-            firstCard.classList.remove('flipped');
-            matchingCard.classList.remove('flipped');
-        }, 1000);
+        if (currentSubject === 'euricum') {
+            value1 = card1.querySelector('img').src;
+        } else {
+            value1 = card1.querySelector('.formula').textContent;
+        }
         
-        hintsLeft--;
-        document.getElementById('hint').textContent = `Подсказка (${hintsLeft})`;
+        for (let j = i + 1; j < unmatchedCards.length; j++) {
+            const card2 = unmatchedCards[j];
+            let value2;
+            
+            if (currentSubject === 'euricum') {
+                value2 = card2.querySelector('img').src;
+            } else {
+                value2 = card2.querySelector('.formula').textContent;
+            }
+            
+            if (value1 === value2) {
+                // Показываем пару карточек
+                card1.classList.add('flipped');
+                card2.classList.add('flipped');
+                
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                }, 1000);
+                
+                hintsLeft--;
+                document.getElementById('hint').textContent = `Подсказка (${hintsLeft})`;
+                foundPair = true;
+                break;
+            }
+        }
+        if (foundPair) break;
     }
 }
 
@@ -193,6 +265,9 @@ function changeSubject(subject) {
     document.querySelectorAll('.subject-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.subject === subject);
     });
+    
+    // Обновляем цветовую схему
+    document.documentElement.style.setProperty('--current-color', subjectColors[subject]);
     
     resetGame();
 }
@@ -206,6 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.subject-btn').forEach(btn => {
         btn.addEventListener('click', () => changeSubject(btn.dataset.subject));
     });
+    
+    // Устанавливаем начальный цвет
+    document.documentElement.style.setProperty('--current-color', subjectColors[currentSubject]);
     
     createCards();
 }); 
