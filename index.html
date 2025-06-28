@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Memory Master</h1>
+        
+        <div class="subjects">
+            <button class="subject-btn active" data-subject="physics">Физика</button>
+            <button class="subject-btn" data-subject="math">Математика</button>
+            <button class="subject-btn" data-subject="informatics">Информатика</button>
+        </div>
+
+        <div class="stats">
+            <div>Ходов: <span id="moves">0</span></div>
+            <div>Время: <span id="timer">00:00</span></div>
+        </div>
+
+        <div class="controls">
+            <button id="newGame">Сбросить</button>
+            <button id="hint">Подсказка (3)</button>
+        </div>
+
+        <div id="gameBoard"></div>
+
+        <div id="winModal" class="modal">
+            <div class="modal-content">
+                <h2>Победа!</h2>
+                <p>Вы справились за <span id="finalMoves">0</span> ходов</p>
+                <p>Время: <span id="finalTime">00:00</span></p>
+                <button id="playAgain">Играть снова</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
